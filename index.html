@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FORGE — Men's Mental Health & Community</title>
+  <meta name="description" content="Forge — mental health, peer support and practical tools for men." />
+
+  <!-- fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root{
+      --dark:#0f172a;
+      --bg:#071029;
+      --panel:#081426;
+      --text:#e6eef6;
+      --muted:#9fb0c6;
+      --edge:rgba(255,255,255,0.04);
+      --accent:#f59e0b;
+      --accent-2:#ffb84d;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 10px 25px rgba(2,6,23,.6);
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background: linear-gradient(180deg, var(--bg) 0%, #071327 100%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    a{color:inherit}
+    .container{max-width:1200px; margin:0 auto; padding:0 18px}
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:80;
+      background:linear-gradient(180deg, rgba(6,12,25,0.6), rgba(6,12,25,0.45));
+      backdrop-filter: blur(6px) saturate(140%);
+      border-bottom:1px solid var(--edge);
+    }
+    .nav{display:flex; gap:16px; align-items:center; justify-content:space-between; padding:14px 18px}
+    .brand{display:flex; gap:12px; align-items:center; text-decoration:none; color:var(--text)}
+    .brand .logo{
+      width:42px; height:42px; border-radius:10px; display:inline-grid; place-items:center;
+      background: linear-gradient(135deg,var(--accent),var(--accent-2)); color:#082432; font-weight:800;
+      box-shadow: 0 6px 18px rgba(0,0,0,.6);
+    }
+    nav ul{list-style:none; display:flex; gap:8px; margin:0; padding:0; align-items:center}
+    nav a{color:var(--muted); text-decoration:none; font-weight:600; padding:8px 12px; border-radius:10px; transition:.15s}
+    nav a:hover{color:var(--text); background:var(--glass); border:1px solid rgba(255,255,255,0.02)}
+
+    /* HERO */
+    .hero{ position:relative; min-height:72vh; display:flex; align-items:center; overflow:hidden; }
+    .hero-slides{ position:absolute; inset:0; z-index:0; overflow:hidden; }
+    /* faster transitions: 600ms fade and slight scale */
+    .slide{
+      position:absolute; inset:0; background-size:cover; background-position:center; opacity:0;
+      transform:scale(1.02); transition:opacity 600ms ease, transform 600ms ease;
+      will-change:opacity, transform;
+      filter: contrast(.98) saturate(.95);
+    }
+    .slide.is-active{ opacity:1; transform:scale(1); }
+
+    /* overlay for text contrast */
+    .hero-overlay{
+      position:absolute; inset:0; z-index:1; background:linear-gradient(180deg, rgba(3,8,15,0.55), rgba(3,8,15,0.35));
+    }
+
+    .hero-inner{ position:relative; z-index:2; max-width:1200px; margin:0 auto; padding:64px 18px; display:grid; grid-template-columns:1fr; gap:18px; align-items:center; }
+    .h-title{ font-size:clamp(28px,6vw,52px); line-height:1.02; margin:0 0 10px; color:var(--text)}
+    .h-title span{ color:var(--accent); }
+    .h-sub{ color:var(--muted); margin:0 0 18px; font-size:clamp(14px,2.6vw,18px) }
+
+    .h-actions{ display:flex; gap:12px; flex-wrap:wrap }
+    .btn{ display:inline-flex; align-items:center; gap:10px; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer; text-decoration:none; border:1px solid transparent; }
+    .btn-primary{ background:var(--accent); color: #071326; box-shadow: 0 8px 20px rgba(245,158,11,.12); }
+    .btn-ghost{ background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.06) }
+
+    .hero-card{ margin-top:16px; display:inline-grid; gap:10px; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)); border-radius:14px; padding:14px; border:1px solid var(--edge); color:var(--muted); }
+
+    /* curved divider */
+    .hero-divider{ display:block; width:100%; height:auto; line-height:0; transform:translateY(1px) }
+
+    /* sections */
+    section.content-section{ padding:52px 18px }
+
+    .sec-head{ display:flex; align-items:end; justify-content:space-between; gap:16px; margin-bottom:18px }
+    .sec-head h2{ margin:0; color:var(--text) }
+    .sec-head p{ margin:0; color:var(--muted) }
+
+    /* small controls */
+    .hero-controls{ position:absolute; right:18px; bottom:18px; z-index:3; display:flex; gap:8px; }
+    .hero-controls button{ background:rgba(255,255,255,0.04); color:var(--text); border-radius:10px; padding:8px 10px; border:1px solid rgba(255,255,255,0.03); cursor:pointer }
+    .hero-controls button:focus{ outline:3px solid rgba(245,158,11,0.16) }
+
+    /* reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .slide{ transition:none !important; transform:none !important }
+    }
+
+    /* grid & cards (kept concise) */
+    .grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:18px }
+    .card{ grid-column:span 4; background:var(--panel); border-radius:12px; padding:18px; border:1px solid var(--edge); box-shadow:0 10px 30px rgba(2,6,23,.45) }
+    @media (max-width:900px){ .card{ grid-column:span 6 } }
+    @media (max-width:600px){ .card{ grid-column:span 12 } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav container">
+      <a class="brand" href="#home" aria-label="Forge home">
+        <span class="logo">F</span>
+        <div style="line-height:1">
+          <div style="font-weight:800">FORGE</div>
+          <small style="color:var(--muted);font-weight:600">Men's mental health</small>
+        </div>
+      </a>
+
+      <nav aria-label="Main navigation">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#services">Support</a></li>
+          <li><a href="#featured">Community</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <a class="wa-cta" href="https://wa.me/254700000000" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="hero" aria-label="Hero section">
+      <!-- Slides: use image1.jpg, image2.jpg, image3.jpg placed in same folder as this HTML -->
+      <div class="hero-slides" aria-hidden="true">
+        <div class="slide is-active" role="img" aria-label="Background image 1"
+             style="background-image: url('image1.jpg');"></div>
+
+        <div class="slide" role="img" aria-label="Background image 2"
+             style="background-image: url('image2.jpg');"></div>
+
+        <div class="slide" role="img" aria-label="Background image 3"
+             style="background-image: url('image3.jpg');"></div>
+      </div>
+
+      <div class="hero-overlay" aria-hidden="true"></div>
+
+      <div class="hero-inner container">
+        <div>
+          <h1 class="h-title">Built for men, <span>Backed by care.</span></h1>
+          <p class="h-sub">This is your corner to unwind, laugh, and enjoy your passions — from gaming battles to football highlights or UFC showdowns. Hang out, swap tips, or just watch and relax with a like-minded crew. Come for the fun, stay for the vibe.</p>
+
+          <div class="h-actions">
+            <a class="btn btn-primary" href="#services"><i class="fa-solid fa-hands-holding-heart"></i> Get Support</a>
+            <a class="btn btn-ghost" href="#featured"><i class="fa-solid fa-users"></i> Join Community</a>
+          </div>
+
+          <div class="hero-card" aria-hidden="false">
+            <div style="font-weight:700"><i class="fa-solid fa-phone" style="margin-right:8px;color:var(--accent)"></i> 24/7 text & chat helpline</div>
+            <div style="font-weight:700"><i class="fa-solid fa-shield-halved" style="margin-right:8px;color:var(--accent)"></i> Confidential & judgement-free</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-controls" aria-hidden="false">
+        <button class="hero-prev" aria-label="Previous background">‹</button>
+        <button class="hero-next" aria-label="Next background">›</button>
+      </div>
+    </section>
+
+    <svg class="hero-divider" viewBox="0 0 1440 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,64 C240,120 480,120 720,64 C960,8 1200,8 1440,64 L1440,110 L0,110 Z" fill="#071327"/>
+    </svg>
+
+    <!-- Services -->
+    <section id="services" class="content-section">
+      <div class="container">
+        <div class="sec-head">
+          <div>
+            <h2>Support & Services</h2>
+            <p style="color:var(--muted)">Practical help, peer support, and specialist care for men.</p>
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top:14px">
+          <article class="card"><i class="fa-solid fa-comment-medical" style="color:var(--accent)"></i>
+            <h3>One-to-one Counselling</h3>
+            <p style="color:var(--muted)">Short-term and ongoing therapy focused on men's wellbeing — online and in-person.</p>
+            <a class="btn btn-ghost" href="#contact">Book a confidential session →</a>
+          </article>
+
+          <article class="card"><i class="fa-solid fa-people-arrows" style="color:var(--accent)"></i>
+            <h3>Peer Groups</h3>
+            <p style="color:var(--muted)">Interest-based groups — gaming nights, football watch parties, and fighters' resilience circles.</p>
+            <a class="btn btn-ghost" href="#featured">See groups →</a>
+          </article>
+
+          <article class="card"><i class="fa-solid fa-heart-pulse" style="color:var(--accent)"></i>
+            <h3>Resilience & Performance</h3>
+            <p style="color:var(--muted)">Tools for stress, sleep, focus and recovery — combining sport psychology and practical routines.</p>
+            <a class="btn btn-ghost" href="#resources">Start a plan →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured -->
+    <section id="featured" class="content-section">
+      <div class="container">
+        <div class="sec-head"><h2>Community Highlights</h2><p style="color:var(--muted)">Stories, events and resources shaped around things men enjoy.</p></div>
+
+        <div class="grid" style="margin-top:14px">
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80" alt="Gaming night" style="width:100%;height:180px;object-fit:cover;border-radius:8px">
+            <h3 style="margin-top:12px">Weekly Co-op Nights</h3>
+            <p style="color:var(--muted)">Low-pressure gaming sessions with wellbeing check-ins and PC/console groups.</p>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1517927033932-b3d5a9b3a6c9?auto=format&fit=crop&w=1200&q=80" alt="Football watch party" style="width:100%;height:180px;object-fit:cover;border-radius:8px">
+            <h3 style="margin-top:12px">Match-day Support</h3>
+            <p style="color:var(--muted)">Watch parties + post-match chats to process highs and lows together.</p>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=1200&q=80" alt="Combat group" style="width:100%;height:180px;object-fit:cover;border-radius:8px">
+            <h3 style="margin-top:12px">Fighter Resilience Circles</h3>
+            <p style="color:var(--muted)">Training-focused mental skills: recovery, focus, and managing pressure.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tools -->
+    <section id="resources" class="content-section">
+      <div class="container">
+        <div class="sec-head"><h2>Tools & Articles</h2><p style="color:var(--muted)">Short, practical reads and trackers you can use today.</p></div>
+
+        <div class="grid" style="margin-top:14px">
+          <article class="card"><i class="fa-solid fa-joystick" style="color:var(--accent)"></i>
+            <h3>Gaming & Wellbeing</h3>
+            <p>How to use gaming for connection and avoid burnout — simple boundaries and routines.</p>
+            <a class="btn btn-ghost" href="#">Read →</a>
+          </article>
+
+          <article class="card"><i class="fa-solid fa-futbol" style="color:var(--accent)"></i>
+            <h3>Team Mindset</h3>
+            <p>Using team rituals to improve mental fitness and reduce isolation.</p>
+            <a class="btn btn-ghost" href="#">Read →</a>
+          </article>
+
+          <article class="card"><i class="fa-solid fa-hand-fist" style="color:var(--accent)"></i>
+            <h3>Fight, Flight, Rest</h3>
+            <p>Recovery strategies for fighters and anyone under constant pressure.</p>
+            <a class="btn btn-ghost" href="#">Read →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials" class="content-section">
+      <div class="container">
+        <div class="sec-head"><h2>Real Voices</h2><p style="color:var(--muted)">Short experiences from men who found the space helpful.</p></div>
+
+        <div class="testi">
+          <div class="slide-t active"><div class="stars">★★★★★</div><p>“Joining the gaming circle gave me mates I could actually talk to — no pressure.”</p><small>— Daniel, 28</small></div>
+          <div class="slide-t"><div class="stars">★★★★★</div><p>“The match-day chats helped me manage anger after losses — I feel calm now.”</p><small>— Marcus, 35</small></div>
+          <div class="slide-t"><div class="stars">★★★★☆</div><p>“Counselling focused on my routines and sleep — small changes, big difference.”</p><small>— Kelvin, 41</small></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="content-section">
+      <div class="container">
+        <div class="sec-head"><h2>FAQ</h2><p style="color:var(--muted)">Quick answers to common questions.</p></div>
+
+        <details><summary>Is this space only for men?</summary>
+          <p style="color:var(--muted)">Yes — it's a male-centred space designed to respond to the social pressures and cultural norms many men face. Allies and partners may be invited to specific events.</p>
+        </details>
+
+        <details><summary>Are sessions confidential?</summary>
+          <p style="color:var(--muted)">All one-to-one sessions and support groups follow strict confidentiality guidelines. We can share full privacy terms on request.</p>
+        </details>
+
+        <details><summary>Do I need to be ‘in crisis’ to join?</summary>
+          <p style="color:var(--muted)">No — many members join to improve routine, build friendships, or manage stress. Crisis support is available 24/7 if needed.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="content-section">
+      <div class="container">
+        <div class="sec-head"><h2>Reach Out</h2><p style="color:var(--muted)">Start with a message — we’ll connect you with the right support.</p></div>
+
+        <form id="contactForm" aria-label="Contact form" style="max-width:760px;margin:auto;background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:18px;box-shadow:0 10px 30px rgba(2,6,23,.45)">
+          <div style="display:grid; gap:12px; grid-template-columns:1fr 1fr; margin-bottom:12px">
+            <div><label for="name">Name</label><input id="name" name="name" required style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text)"></div>
+            <div><label for="email">Email</label><input id="email" name="email" type="email" required style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text)"></div>
+            <div style="grid-column:span 2"><label for="message">Message</label><textarea id="message" name="message" rows="4" required style="width:100%; padding:12px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.04); background:transparent; color:var(--text); resize:vertical"></textarea></div>
+          </div>
+
+          <div style="display:flex; gap:10px; align-items:center; justify-content:space-between">
+            <button class="btn btn-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+            <small id="formStatus" style="color:var(--muted)"></small>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container" style="display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap">
+      <small>© <span id="year"></span> Forge — Men's Mental Health</small>
+      <div style="display:flex; gap:12px">
+        <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      // Faster crossfade slideshow: interval 3500ms, fade 600ms (matches CSS)
+      const slides = Array.from(document.querySelectorAll('.hero .slide'));
+      const nextBtn = document.querySelector('.hero-next');
+      const prevBtn = document.querySelector('.hero-prev');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let i = slides.findIndex(s => s.classList.contains('is-active'));
+      if(i < 0) i = 0;
+
+      const INTERVAL = 3500; // faster auto-rotate
+      let timer = null;
+
+      function show(n){
+        slides.forEach((s, idx) => s.classList.toggle('is-active', idx === n));
+        i = n;
+      }
+      function next(){ show((i + 1) % slides.length); }
+      function prev(){ show((i - 1 + slides.length) % slides.length); }
+
+      // initialize
+      show(i);
+
+      // auto-rotate unless user prefers reduced motion
+      if(!reduced && slides.length > 1){
+        timer = setInterval(next, INTERVAL);
+        const heroEl = document.querySelector('.hero');
+        heroEl.addEventListener('pointerenter', ()=> clearInterval(timer));
+        heroEl.addEventListener('pointerleave', ()=> { timer = setInterval(next, INTERVAL); });
+      }
+
+      // controls
+      if(nextBtn) nextBtn.addEventListener('click', ()=> { next(); if(timer){ clearInterval(timer); timer = setInterval(next, INTERVAL); } });
+      if(prevBtn) prevBtn.addEventListener('click', ()=> { prev(); if(timer){ clearInterval(timer); timer = setInterval(next, INTERVAL); } });
+
+      // keyboard support: left/right arrows
+      document.addEventListener('keydown', (e) => {
+        if(document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+        if(e.key === 'ArrowRight') { next(); if(timer){ clearInterval(timer); timer = setInterval(next, INTERVAL); } }
+        if(e.key === 'ArrowLeft') { prev(); if(timer){ clearInterval(timer); timer = setInterval(next, INTERVAL); } }
+      });
+
+      // contact form demo
+      const f = document.getElementById('contactForm');
+      const s = document.getElementById('formStatus');
+      if(f){
+        f.addEventListener('submit', async (e)=>{
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(f));
+          if(!data.name||!data.email||!data.message){ s.textContent='Please fill all fields.'; return; }
+          s.textContent='Sending…';
+          await new Promise(r=>setTimeout(r,700));
+          s.textContent='Thanks — we will be in touch shortly.';
+          f.reset();
+        });
+      }
+
+      // testimonials rotator (gentle)
+      const tSlides = Array.from(document.querySelectorAll('.testi .slide-t'));
+      let ti = 0;
+      if(tSlides.length > 1 && !reduced){
+        setInterval(()=>{ tSlides[ti].classList.remove('active'); ti=(ti+1)%tSlides.length; tSlides[ti].classList.add('active'); }, 4200);
+      }
+
+      // set current year
+      const y = document.getElementById('year');
+      if(y) y.textContent = new Date().getFullYear();
+    })();
+  </script>
+</body>
+</html>
